@@ -1,0 +1,73 @@
+﻿Bases de datos NoSQL - práctica 2
+
+
+#Nombre1: Daniel Tocino Estrada
+
+#Nombre2: Esther Ávila Benito
+
+#Nombre3: Carolina Rivero Fernandez
+
+
+
+#Observaciones:
+
+
+
+#P1 Consulta:
+
+db.minitweet.find({"mentions": "HillaryClinton"}).count()
+
+
+
+#P2 Consulta:
+
+db.minitweet.find({"mentions": {$regex: "real"}})
+
+
+
+#P3 Consulta:
+
+db.minitweet.find({"mentions": {$size: 2}})
+
+
+
+#P4 Consulta:
+
+db.minitweet.find({"mentions.2": {$exists: 1}})
+
+
+
+#P5 Consulta:
+
+db.minitweet.find({"text": {$regex: ".*yps.*"}})
+
+
+
+#P6 Consulta:
+
+db.libros.find({$and: [{"precio": {$gte: 10, $lte: 20}},{"opiniones.puntos": {$gt: 8}}]})
+
+
+
+#P7 Consulta:
+
+db.libros.find({"opiniones": {$elemMatch: {"usuario": "herminia", "comentario": {"$exists": true}}}}, {"titulo": 1, "_id": 0})
+
+
+
+#P8 Consulta:
+
+db.libros.find({"opiniones": {$elemMatch: {"usuario": "herminia", "puntos": {$gt: 5}}}}, {"titulo": 1, "_id": 0})
+
+
+
+#P9 Consulta:
+
+db.libros.find({"opiniones.0.usuario": "bertoldo"}, {"titulo": 1, _id: 0})
+
+
+
+#P10 Consulta:
+
+db.minitweet.find({"$and": [{"mentions": "HillaryClinton"}, {"mentions": {$nin: ["FLOTUS"]}}]})
+
