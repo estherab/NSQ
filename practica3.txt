@@ -1,0 +1,84 @@
+﻿Bases de datos NoSQL - práctica 3
+
+
+#Nombre1: Daniel Tocino Estrada
+
+#Nombre2: Esther Avila Benito
+
+#Nombre3: Carolina Rivero Fernandez
+
+
+#Observaciones:
+
+
+
+#P1 Consulta:
+
+db.tutuve.update({"nick": "CetoGames"}, {$set: {"nick": "CetrusMax"}})
+
+
+
+#P2 Consulta:
+
+db.tutuve.update({"nick": "VertolduX"}, {$push: {"videos": {"titulo": "Mortal Teddy Bear", "vistas": 0, "bloqueado": false}}})
+
+
+
+#P3 Consulta:
+
+db.tutuve.update({"nick": "CalixtaRex"}, {$inc: {"suscritos": 1}})
+
+
+
+
+#P4 Consulta:
+
+db.tutuve.update({"suscritos": {$gt: 400}}, {$set: {"premium": true}},{multi: true})
+
+
+
+#P5 Consulta:
+
+db.tutuve.remove({"videos.vistas": {$lt: 45}})
+
+
+
+
+#P6 Consulta:
+
+db.numeros.drop()
+
+db.numeros.insert({_id: 1}, {n: []});
+
+nums = [1,3,1,4,5,6,7,5,7];
+
+for (a of nums) {  
+	db.numeros.update({}, {$addToSet: {a}}) 
+}
+
+db.numeros.find();
+
+
+
+#P7 Consulta:
+
+db.tutuve.update({"old": {$exists: true}}, {$unset: {"old": true}}, {multi: true})
+
+
+
+
+#P8 Consulta:
+
+db.tutuve.update({"nick": "CalixtaRex"}, {$setOnInsert: {"videos": [], "suscritos": 100}}, {upsert: true})
+
+
+
+#P9 Consulta:
+
+db.tutuve.update({"videos.titulo": "Mortal Teddy Bear"}, {$set: {"videos.$.bloqueado": true}})
+
+
+
+#P10 Consulta:
+
+db.tutuve.find({"suscritos": {"$gt": db.tutuve.find({"nick": "VertolduX"}, {_id:0, "suscritos": 1})[0].suscritos}})
