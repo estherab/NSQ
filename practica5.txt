@@ -1,0 +1,52 @@
+﻿Bases de datos NoSQL - práctica 5
+
+
+
+#Nombre1: Esther Ávila Benito
+
+#Nombre2: Carolina Rivero Fernández
+
+#Nombre3:
+
+
+
+#Observaciones:
+
+
+
+#P1 Consulta:
+
+
+db.tweet.aggregate([{$match:{"user.screen": "patrioticpepe", "opinion": 1}}, 
+                    {$group: {_id: "$user.screen", h: {"$sum": "$hlabel"}, t: {"$sum": "$tlabel"}, count: {"$sum": 1}}}])
+
+
+
+#P2 Consulta:
+
+
+db.tweet.aggregate([{$unwind: "$mentions"}, {$group: {_id: "$mentions", max: {$sum: 1}}}, {$sort: {max: -1}}, {$limit: 1}])
+
+
+
+#P3 Consulta:
+
+
+db.user.aggregate([{$bucket: {groupBy: "$followers", boundaries: [0,1000,5000,10000,100000], default: "Infinito"}}])
+
+
+
+#P4 Consulta:
+
+
+db.user.aggregate([{$project: {_id: 0, user: ["$_id", "$screen_name"]}}])
+
+
+
+#P5 Consulta:
+
+
+db.user.aggregate([{$group: {_id: {screen_name: "$screen_name", followers: "$followers"}}}, 
+                   {$lookup: {from: "tweet", localField: "_id.screen_name", foreignField: "user.screen", as: "cuantos"}}, 
+                   {$project: {_id: 0, screen_name: "$_id.screen_name", followers: "$_id.followers", cuantos: {$sum: 1}}}])
+
