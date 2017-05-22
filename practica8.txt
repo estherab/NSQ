@@ -1,0 +1,60 @@
+﻿Práctica 8 -  NoSQL - Solución
+Nombre 1: Esther Ávila Benito
+Nombre 2: Carolina Rivero Fernández
+Nombre 3: Daniel Tocino Estrada
+Observaciones:
+
+Respuestas
+
+1#Instrucciones: 
+mongod --port 27001 --replSet practReplica001 --dbpath ./data1 --logappend --oplogSize 50
+mongod --port 27002 --replSet practReplica001 --dbpath ./data2 --logappend --oplogSize 50
+mongod --port 27003 --replSet practReplica001 --dbpath ./data3 --logappend --oplogSize 50
+
+
+1#Configuración:
+config = {_id: "practReplica001", members: [{_id:0, host:"127.0.0.1:27001" }, {_id:1, host:"127.0.0.1:27002" }, {_id:2, host:"127.0.0.1:27003" }]}
+
+
+2#Indicar el comando en shell:
+rs.status()
+
+2#Parte de la respuesta que muestra esta información en shell:
+"_id" : 2,
+		"name" : "127.0.0.1:27003",
+		"health" : 0,
+		"state" : 8,
+		"stateStr" : "(not reachable/healthy)"
+
+2#Indicar el comando en linux:
+lsof -iTCP -sTCP:LISTEN | grep mongo
+
+2#Parte de la respuesta que muestra esta información en linux:
+mongod  8009 usuario_local    6u  IPv4  31999      0t0  TCP *:27001 (LISTEN)
+mongod  8045 usuario_local    6u  IPv4  26289      0t0  TCP *:27002 (LISTEN)
+No sale el puerto 27003
+
+2#Desde el terminal T2 se ve esto:
+2017-05-09T14:31:34.260+0200 I REPL     [ReplicationExecutor] Error in heartbeat request to 127.0.0.1:27003; HostUnreachable: Connection refused
+
+3#¿Por qué se obtiene el resultado que se puede ver como respuesta? (una frase): Porque no logra la escritura en los 3 servidores ya que el número 3 sigue caido
+
+#4 ¿Se puede ver desde alguno la colección tururu? Sí
+
+#4 ¿Está completa?  Sí, en nuestro caso el servidor número 3 se ha vuelto primario y tiene una copia de la colección
+
+#5 ¿Se puede ver la colección directamente tururu de la base de datos pruebas desde 27001? No
+
+#5 ¿En caso negativo, qué hay que hacer? 
+Hay que usar rs.slaveOk() para que te deje hacer consultas desde un secundario
+
+#6 Instrucción:
+db.tururu.find().readPref("secondaryPreferred")
+
+#7 Instrucción:
+rs.add("127.0.0.1:27004")
+
+#8 Secuencia de instrucciones: 
+rs.stepDown() en el servidor 3 que era nuestro primario
+Desde el servidor 1 que ahora vuelve a ser el primario: rs.remove("127.0.0.1:27003")
+

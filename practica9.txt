@@ -1,0 +1,112 @@
+Práctica 9 -  NoSQL - Solución
+Nombre 1: Esther Ávila Benito
+Nombre 2: Carolina Rivero Fernández
+Nombre 3: Daniel Tocino Estrada
+
+Observaciones:
+
+Respuestas
+
+1#Instrucciones para crear las carpetas: mkdir a1 a2 a3 b1 b2 b3 cfg1 cfg2 cfg3
+
+1#Instrucciones para crear los servidores de configuración: 
+mongod --configsvr --replSet cfg --dbpath cfg1 --port 26050 --fork --logpath cfg1/log --logappend --smallfiles
+mongod --configsvr --replSet cfg --dbpath cfg2 --port 26051 --fork --logpath cfg2/log --logappend --smallfiles
+mongod --configsvr --replSet cfg --dbpath cfg3 --port 26052 --fork --logpath cfg3/log --logappend --smallfiles
+
+conf = {
+	"_id" : "cfg",
+	"members" : [
+		{
+			"_id" : 0,
+			"host" : "pto1013.local:26050"
+		},
+		{
+			"_id" : 1,
+			"host" : "pto1013.local:26051"
+		},
+		{
+			"_id" : 2,
+			"host" : "pto1013.local:26052"
+		}
+	]
+}
+
+1#Instrucciones para crear los servidores de datos: 
+mongod --shardsvr --replSet a --dbpath a1 --logpath a1/log --port 27101 --fork --logappend --oplogSize 50 --smallfiles
+mongod --shardsvr --replSet a --dbpath a2 --logpath a2/log --port 27102 --fork --logappend --oplogSize 50 --smallfiles
+mongod --shardsvr --replSet a --dbpath a3 --logpath a3/log --port 27103 --fork --logappend --oplogSize 50 --smallfiles
+mongod --shardsvr --replSet b --dbpath b1 --logpath b1/log --port 27201 --fork --logappend --oplogSize 50 --smallfiles
+mongod --shardsvr --replSet b --dbpath b2 --logpath b2/log --port 27202 --fork --logappend --oplogSize 50 --smallfiles
+mongod --shardsvr --replSet b --dbpath b3 --logpath b3/log --port 27203 --fork --logappend --oplogSize 50 --smallfiles
+
+1#Instrucciones para crear el servidor mongos: 
+mongos --configdb cfg/pto1013.local:26050,pto1013.local:26051,pto1013.local:26052 --fork --logappend --logpath mongoslog.txt
+
+2#Comandos shell para crear los conjuntos réplica:
+conf = {
+	"_id" : "a",
+	"members" : [
+		{
+			"_id" : 0,
+			"host" : "pto1013.local:27101"
+		},
+		{
+			"_id" : 1,
+			"host" : "pto1013.local:27102"
+		},
+		{
+			"_id" : 2,
+			"host" : "pto1013.local:27103"
+		}
+	]
+}
+
+conf = {
+	"_id" : "b",
+	"members" : [
+		{
+			"_id" : 0,
+			"host" : "pto1013.local:27201"
+		},
+		{
+			"_id" : 1,
+			"host" : "pto1013.local:27202"
+		},
+		{
+			"_id" : 2,
+			"host" : "pto1013.local:27203"
+		}
+	]
+}
+
+3#Comandos shell para las particiones:
+sh.addShard("a/pto1013.local:27101")
+sh.addShard("b/pto1013.local:27201")
+
+#4a¿Está particionada la base de datos pin-pon? (Sí/No): No
+
+#4b¿Qué parte de la respuesta que muestra sh.status lo indica? (una frase)  
+databases:
+	{  "_id" : "pin-pon",  "primary" : "b",  "partitioned" : false }
+
+#5 Instrucciones:
+sh.enableSharding("aleatorio")
+db.dados.createIndex({dado:1},{unique:false})
+sh.shardCollection("aleatorio.dados", {dado:1},false)
+
+#6 Número de documentos en la partición a: 10160
+
+#6 Número de documentos en la partición b: 9840
+
+#7 a)2
+#7 b)0
+#7 c)20000
+
+#8 a)1
+#8 b)3487
+#8 c)0
+
+#9 Consulta:
+db.chunks.find({ns:"aleatorio.dados", "min.dado":{"$lte":4}, "max.dado":{"$gte":4}},{shard:1,_id:0})
+

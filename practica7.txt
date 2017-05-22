@@ -1,0 +1,55 @@
+Práctica 7 -  NoSQL - Solución
+Nombre 1: Esther Ávila Benito
+Nombre 2: Daniel Tocino Estrada
+Nombre 3: Carolina Rivero Fernández
+
+Observaciones:
+
+Respuestas
+
+P1#Consulta: 
+db.tweet.find({text: {$regex: "lies", $options: "i"}}).count()
+
+P2#Instrucción que crea el índice: 
+db.tweet.createIndex({text: "text"}, "itext")
+
+P3#Consulta: 
+db.tweet.find({$text: {$search: "lies"}}).count()
+
+P4#Consulta:
+db.tweet.find({$text: {$search: "lies"}, text: {$regex: "^((?!lies).)*$"}}).count()
+
+5#Instrucción índice 1: 
+db.user.createIndex({mentions: -1}, "mendown")
+
+5#Instrucción índice 2: 
+db.user.createIndex({followers: 1}, "follup", {unique: true})
+
+6#Consulta:
+db.user.find({followers: {$gt: 30}}, {followers: 1, mentions: 1, _id: 0})
+
+P7#Instrucción: 
+db.user.explain().find({followers: {$gt: 30}}, {followers: 1, mentions: 1, _id: 0})
+db.user.explain("executionStats").find({followers: {$gt: 30}}, {followers: 1, mentions: 1, _id: 0})
+
+Índices (nombres de los índices separados por comas (o “ninguno”)): "follup"
+Documentos (el total de  documentos accedidos): "totalDocsExamined" : 141
+Claves (total de claves de índice a las que se han accedido): "totalKeysExamined" : 141
+
+P8#Índices: 
+db.user.createIndex({followers: 1,mentions: 1}, "prueba")
+
+Documentos: "totalDocsExamined" : 0
+Claves: "totalKeysExamined" : 141
+Explicación: Porque el índice va sobre followers y mentions a la vez, así que una vez consultadas las claves, no hace falta consultar los documentos para sacar las menciones como en el caso anterior.
+
+P9#Consulta: 
+db.user.find({$where: "this.followers > this.mentions"})
+
+Índices: "ninguno"
+
+Explicación: Porque lo hace sobre javascript, por lo que no recurre a ningún índice de mongo.
+Rechazados: [ ]
+
+P10#Más eficiente (a/b/ninguna): a
+Explicación: Porque recurre al índice prueba creado por nosotros anteriormente, mientras que la consulta b recorre la colección entera.
